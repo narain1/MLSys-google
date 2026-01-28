@@ -69,13 +69,25 @@ class Problem:
         with open(filename, 'r') as f:
             data = json.load(f)
         
+        num_tensors = len(data['widths'])
         tensors = [Tensor(i, w, h) for i, (w, h) in enumerate(zip(data['widths'], data['heights']))]
-        ops = [
-            Operation(i, op_type, inputs, outputs, base_cost)
-            for i, (op_type, inputs, outputs, base_cost) in enumerate(zip(
+        
+        # Build ops, filtering out any with invalid tensor references
+        ops = []
+        skipped = []
+        for i, (op_type, inputs, outputs, base_cost) in enumerate(zip(
                 data['op_types'], data['inputs'], data['outputs'], data['base_costs']
-            ))
-        ]
+        )):
+            # Check if all tensor indices are valid
+            invalid = [t for t in inputs + outputs if t >= num_tensors]
+            if invalid:
+                skipped.append(i)
+                continue
+            
+            ops.append(Operation(len(ops), op_type, inputs, outputs, base_cost))
+        
+        if skipped:
+            print(f"Warning: Skipped {len(skipped)} operations with invalid tensor references: {skipped}")
         
         return Problem(
             tensors=tensors,
@@ -121,14 +133,20 @@ class DependencyAnalyzer:
         tensor_producer: Dict[int, int] = {}
         for op in self.problem.ops:
             for t_idx in op.outputs:
-                tensor_producer[t_idx] = op.idx
+                # Only record if this is the first producer
+                # (handles in-place operations that have tensor in both input and output)
+                if t_idx not in tensor_producer:
+                    tensor_producer[t_idx] = op.idx
         
         # Now build dependencies
         deps: List[Set[int]] = [set() for _ in self.problem.ops]
         for op in self.problem.ops:
             for t_idx in op.inputs:
                 if t_idx in tensor_producer:
-                    deps[op.idx].add(tensor_producer[t_idx])
+                    producer_idx = tensor_producer[t_idx]
+                    # Don't add self-dependency (for in-place operations)
+                    if producer_idx != op.idx:
+                        deps[op.idx].add(producer_idx)
         
         return deps
     
@@ -171,6 +189,11 @@ class GranularityOptimizer:
         Find a valid granularity that fits memory constraints.
         Starts with native and reduces if needed (like opportunistic demotion in VLIW).
         """
+        # Safety check for tensor indices
+        if not op.outputs or op.outputs[0] >= len(self.problem.tensors):
+            # Fallback for invalid output - use native granularity
+            return (self.native_w, self.native_h, self.native_w if op.op_type == "MatMul" else 1)
+        
         # Get output tensor dimensions to determine max granularity
         output_tensor = self.problem.tensors[op.outputs[0]]
         max_w = output_tensor.width
@@ -191,10 +214,13 @@ class GranularityOptimizer:
                     # Get K dimension from input tensors
                     # For MatMul: A is (M, K), B is (K, N), output is (M, N)
                     # inputs[0] is A, inputs[1] is B
-                    input_a = self.problem.tensors[op.inputs[0]]
-                    max_k = input_a.width  # K dimension
-                    k_values = [min(k, max_k) for k in [128, 64, 32, 16] if k <= max_k]
-                    if not k_values: k_values = [max_k]
+                    if op.inputs and op.inputs[0] < len(self.problem.tensors):
+                        input_a = self.problem.tensors[op.inputs[0]]
+                        max_k = input_a.width  # K dimension
+                        k_values = [min(k, max_k) for k in [128, 64, 32, 16] if k <= max_k]
+                        if not k_values: k_values = [max_k]
+                    else:
+                        k_values = [128]  # Default fallback
                 else:
                     k_values = [1]
                 
@@ -245,6 +271,14 @@ class ListScheduler:
         Check if two operations can be fused into the same subgraph.
         Similar to checking if ops can fit in same VLIW bundle.
         """
+        # Safety checks
+        if not op1.outputs or not op2.outputs:
+            return False
+        
+        # Check tensor indices are valid
+        if op1.outputs[0] >= len(self.problem.tensors) or op2.outputs[0] >= len(self.problem.tensors):
+            return False
+        
         # Can only fuse if op2 depends directly on op1
         if op1.idx not in self.analyzer.deps[op2.idx]:
             return False

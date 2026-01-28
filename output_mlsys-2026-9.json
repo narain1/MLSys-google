@@ -1,0 +1,324 @@
+{
+  "subgraphs": [
+    {
+      "ops": [
+        0,
+        1
+      ],
+      "tensors_to_retain": [
+        18
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        2
+      ],
+      "tensors_to_retain": [
+        19
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        3
+      ],
+      "tensors_to_retain": [
+        20
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        4,
+        5
+      ],
+      "tensors_to_retain": [
+        22
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        6
+      ],
+      "tensors_to_retain": [
+        23
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        7
+      ],
+      "tensors_to_retain": [
+        24
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        8,
+        9
+      ],
+      "tensors_to_retain": [
+        26
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        10
+      ],
+      "tensors_to_retain": [
+        27
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        11
+      ],
+      "tensors_to_retain": [
+        28
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        12,
+        13
+      ],
+      "tensors_to_retain": [
+        30
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        14
+      ],
+      "tensors_to_retain": [
+        31
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        15
+      ],
+      "tensors_to_retain": [
+        32
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        16,
+        17
+      ],
+      "tensors_to_retain": [
+        34
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        18
+      ],
+      "tensors_to_retain": [
+        35
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        19
+      ],
+      "tensors_to_retain": [
+        36
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        20,
+        21
+      ],
+      "tensors_to_retain": [
+        38
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        22
+      ],
+      "tensors_to_retain": [
+        39
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        23
+      ],
+      "tensors_to_retain": [
+        40
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        24,
+        25
+      ],
+      "tensors_to_retain": [
+        42
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        26
+      ],
+      "tensors_to_retain": [
+        43
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        27
+      ],
+      "tensors_to_retain": [
+        44
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    },
+    {
+      "ops": [
+        28,
+        29
+      ],
+      "tensors_to_retain": [
+        46
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        30
+      ],
+      "tensors_to_retain": [
+        47
+      ],
+      "granularity": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "ops": [
+        31
+      ],
+      "tensors_to_retain": [
+        48
+      ],
+      "granularity": [
+        128,
+        128,
+        1
+      ]
+    }
+  ]
+}
