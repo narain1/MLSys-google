@@ -232,6 +232,7 @@ class ListScheduler:
     """
     List scheduler inspired by VLIW packing.
     Schedules operations respecting dependencies and memory constraints.
+    Key optimization: Fuses compatible operations into subgraphs (like VLIW bundling).
     """
     
     def __init__(self, problem: Problem):
@@ -239,16 +240,35 @@ class ListScheduler:
         self.analyzer = DependencyAnalyzer(problem)
         self.optimizer = GranularityOptimizer(problem)
     
+    def can_fuse(self, op1: Operation, op2: Operation) -> bool:
+        """
+        Check if two operations can be fused into the same subgraph.
+        Similar to checking if ops can fit in same VLIW bundle.
+        """
+        # Can only fuse if op2 depends directly on op1
+        if op1.idx not in self.analyzer.deps[op2.idx]:
+            return False
+        
+        # Check if they use compatible granularities (same output dimensions)
+        out1 = self.problem.tensors[op1.outputs[0]]
+        out2 = self.problem.tensors[op2.outputs[0]]
+        
+        # For now, only fuse if outputs have same dimensions
+        # More sophisticated: check if one is a pointwise on the other's output
+        if out1.width == out2.width and out1.height == out2.height:
+            # Check if op2 only uses op1's output (producer-consumer fusion)
+            if all(inp in op1.outputs for inp in op2.inputs):
+                return True
+        
+        return False
+    
     def schedule(self) -> List[Subgraph]:
         """
-        Create a schedule using list scheduling with priority ordering.
+        Create a schedule using list scheduling with priority ordering and fusion.
         Similar to VLIWPacker but for graph operations.
         """
         subgraphs = []
         scheduled = [False] * len(self.problem.ops)
-        
-        # Track which tensors are currently in fast memory
-        in_fast_memory = set(self.analyzer.graph_inputs)
         
         while not all(scheduled):
             # Find ready operations (all dependencies satisfied)
@@ -263,48 +283,157 @@ class ListScheduler:
             # Sort by priority (depth-based, like VLIW)
             ready.sort(key=lambda i: -self.analyzer.depth[i])
             
-            # Try to pack operations into a subgraph
-            # For simplicity, start with one op per subgraph
-            # A more sophisticated approach would fuse compatible ops
-            for op_idx in ready:
-                op = self.problem.ops[op_idx]
+            # Take the highest priority op
+            op_idx = ready[0]
+            op = self.problem.ops[op_idx]
+            ops_in_subgraph = [op_idx]
+            
+            # Try to fuse with chain of dependent ops (greedy fusion)
+            # Mark current ops as tentatively scheduled to find next ready ops
+            temp_scheduled = scheduled[:]
+            for idx in ops_in_subgraph:
+                temp_scheduled[idx] = True
+            
+            # Look for ops that become ready after scheduling current subgraph
+            while True:
+                next_ready = [
+                    i for i in range(len(self.problem.ops))
+                    if not temp_scheduled[i] and all(temp_scheduled[d] for d in self.analyzer.deps[i])
+                ]
                 
-                # Determine which tensors need to be in fast memory
-                required_tensors = set(op.inputs)
+                if not next_ready:
+                    break
                 
-                # Find valid granularity
-                granularity = self.optimizer.find_valid_granularity(op, required_tensors)
+                # Check if any of the next ready ops can be fused
+                fused_any = False
+                for next_op_idx in next_ready:
+                    next_op = self.problem.ops[next_op_idx]
+                    
+                    # Check if we can fuse (forms a chain from last op in subgraph)
+                    last_op = self.problem.ops[ops_in_subgraph[-1]]
+                    if self.can_fuse(last_op, next_op):
+                        # Check memory constraints with fusion
+                        test_ops = ops_in_subgraph + [next_op_idx]
+                        if self._check_fusion_memory(test_ops):
+                            ops_in_subgraph.append(next_op_idx)
+                            temp_scheduled[next_op_idx] = True
+                            fused_any = True
+                            break  # Only fuse one op at a time in the chain
                 
-                # Determine which tensors to retain after this subgraph
-                # Keep outputs if they're used by future ops or are graph outputs
-                tensors_to_retain = []
-                for t_idx in op.outputs:
-                    if t_idx in self.analyzer.graph_outputs:
-                        tensors_to_retain.append(t_idx)
-                    else:
-                        # Check if used by unscheduled ops
-                        for future_op in self.problem.ops:
-                            if not scheduled[future_op.idx] and t_idx in future_op.inputs:
-                                tensors_to_retain.append(t_idx)
-                                break
-                
-                # Create subgraph
-                subgraph = Subgraph(
-                    ops=[op_idx],
-                    tensors_to_retain=tensors_to_retain,
-                    granularity=granularity
-                )
-                
-                subgraphs.append(subgraph)
-                scheduled[op_idx] = True
-                
-                # Update fast memory state
-                in_fast_memory.update(op.outputs)
-                
-                # Only process one ready op at a time for now
-                break
+                if not fused_any:
+                    break  # No more ops can be fused
+            
+            # Find common granularity for fused ops
+            granularity = self._find_subgraph_granularity(ops_in_subgraph)
+            
+            # Determine which tensors to retain
+            tensors_to_retain = self._find_tensors_to_retain(ops_in_subgraph, scheduled)
+            
+            # Create subgraph
+            subgraph = Subgraph(
+                ops=ops_in_subgraph,
+                tensors_to_retain=tensors_to_retain,
+                granularity=granularity
+            )
+            
+            subgraphs.append(subgraph)
+            
+            # Mark ops as scheduled
+            for idx in ops_in_subgraph:
+                scheduled[idx] = True
         
         return subgraphs
+    
+    def _check_fusion_memory(self, ops: List[int]) -> bool:
+        """
+        Check if fusing these ops would fit in memory.
+        Key insight: intermediate (ephemeral) tensors don't consume fast memory!
+        They flow directly from producer to consumer within the subgraph.
+        """
+        if not ops:
+            return True
+        
+        # For a simple heuristic: estimate working set based on first and last op
+        # This is conservative but works for chain fusions
+        first_op = self.problem.ops[ops[0]]
+        last_op = self.problem.ops[ops[-1]]
+        
+        # Get granularity
+        required = set(first_op.inputs)
+        gran = self.optimizer.find_valid_granularity(first_op, required)
+        w, h, k = gran
+        
+        # Collect external inputs and final outputs
+        all_inputs = set()
+        all_outputs = set()
+        for op_idx in ops:
+            op = self.problem.ops[op_idx]
+            all_inputs.update(op.inputs)
+            all_outputs.update(op.outputs)
+        
+        external_inputs = all_inputs - all_outputs
+        final_outputs = all_outputs - all_inputs
+        
+        # Working set estimation:
+        # - Each external input needs one slice (w x h)
+        # - Final output needs one slice (w x h)
+        # - For MatMul, need intermediate buffers for reduction
+        
+        slice_size = w * h
+        
+        # Count slices needed
+        input_slices = len(external_inputs)
+        output_slices = len(final_outputs)
+        
+        # For MatMul operations, need reduction dimension buffers
+        has_matmul = any(self.problem.ops[idx].op_type == "MatMul" for idx in ops)
+        
+        if has_matmul:
+            # MatMul working set: A slice (w x k) + B slice (k x h) + C accumulator (w x h)
+            # Approximate as: input_slices * slice + output_slices * slice + extra for K dimension
+            working_memory = (input_slices + output_slices) * slice_size + max(w * k, k * h)
+        else:
+            # Pointwise: just input and output slices
+            working_memory = (input_slices + output_slices) * slice_size
+        
+        # Use 90% threshold (leave some margin)
+        threshold = self.problem.fast_memory_capacity * 0.9
+        
+        return working_memory <= threshold
+    
+    def _find_subgraph_granularity(self, ops: List[int]) -> Tuple[int, int, int]:
+        """Find a valid granularity for all ops in subgraph."""
+        # Use the first op's requirements (they should be compatible if fused)
+        op = self.problem.ops[ops[0]]
+        
+        # Collect all required input tensors for the subgraph
+        required = set()
+        for op_idx in ops:
+            required.update(self.problem.ops[op_idx].inputs)
+        
+        return self.optimizer.find_valid_granularity(op, required)
+    
+    def _find_tensors_to_retain(self, ops: List[int], scheduled: List[bool]) -> List[int]:
+        """Determine which tensors to keep in fast memory after this subgraph."""
+        # Collect all outputs from this subgraph
+        outputs = set()
+        for op_idx in ops:
+            outputs.update(self.problem.ops[op_idx].outputs)
+        
+        tensors_to_retain = []
+        for t_idx in outputs:
+            # Retain if it's a graph output
+            if t_idx in self.analyzer.graph_outputs:
+                tensors_to_retain.append(t_idx)
+            else:
+                # Retain if used by future unscheduled ops
+                for future_op in self.problem.ops:
+                    if not scheduled[future_op.idx] and future_op.idx not in ops:
+                        if t_idx in future_op.inputs:
+                            tensors_to_retain.append(t_idx)
+                            break
+        
+        return tensors_to_retain
 
 
 class MLSysSolver:
