@@ -456,7 +456,7 @@ Similarly, we divide `tensor1` (`128x128`) into 2 concatenated column strips:
 
 #### Strategy A: Naive Tiling (High Revisit)
 
-We process tiles in standard raster order (top-left \-\> top-right \-\> bottom-left \-\> bottom-right) but flush the fast memory every time.  
+We process tiles in standard raster order (top-left \-\> top-right \-\> bottom-left \-\> bottom-right).
 Output
 
 ```json
@@ -465,7 +465,7 @@ Output
   "granularities": [[64,64,128]],
   "tensors_to_retain": [[]],
   "traversal_orders": [null],
-  "subgraph_latencies": [8192]
+  "subgraph_latencies": [7096]
 }
 ```
 
@@ -473,32 +473,32 @@ Smaller granularity is required, because all 3 tensors can’t co-exist in the f
 
 The `128x128` output is computed in 4 equal steps.
 
-* Step 1 (top-left):  
-  * Move row strip 0 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`  
-  * Move column strip 0 from the slow memory to the fast memory. `MemoryTime0_in += 819.2` (`MemoryTime0_in = 1638.4`).  
-  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`  
-  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`  
-  * `TotalLatency0_1 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 2,048`  
-* Step 2 (top-right):  
-  * Move row strip 0 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`  
-  * Move column strip 1 from the slow memory to the fast memory. `MemoryTime0_in += 819.2` (`MemoryTime0_in = 1638.4`).  
-  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`  
-  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`  
-  * `TotalLatency0_2 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 2,048`  
-* Step 3 (lower-left):  
-  * Move row strip 1 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`  
-  * Move column strip 0 from the slow memory to the fast memory. `MemoryTime0_in += 819.2` (`MemoryTime0_in = 1638.4`).  
-  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`  
-  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`  
-  * `TotalLatency0_3 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 2,048`  
-* Step 4 (lower-right):  
-  * Move row strip 1 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`  
-  * Move column strip 1 from the slow memory to the fast memory. `MemoryTime0_in += 819.2` (`MemoryTime0_in = 1638.4`).  
-  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`  
-  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`  
-  * `TotalLatency0_4 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 2,048`  
-* Graph total:  
-  * `TotalLatency = TotalLatency0_1 + TotalLatency0_2 + TotalLatency0_3 + TotalLatency0_4 = 8,192` (Memory bound).
+* Step 1 (top-left):
+  * Move row strip 0 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`
+  * Move column strip 0 from the slow memory to the fast memory. `MemoryTime0_in += 819.2` (`MemoryTime0_in = 1638.4`).
+  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`
+  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`
+  * `TotalLatency0_1 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 2,048`
+* Step 2 (top-right):
+  * Reuse resident row strip 0.
+  * Move column strip 1 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`
+  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`
+  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`
+  * `TotalLatency0_2 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 1,500`
+* Step 3 (bottom-left):
+  * Move row strip 1 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`
+  * Move column strip 0 from the slow memory to the fast memory. `MemoryTime0_in += 819.2` (`MemoryTime0_in = 1638.4`).
+  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`
+  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`
+  * `TotalLatency0_3 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 2,048`
+* Step 4 (bottom-right):
+  * Reuse resident row strip 1.
+  * Move column strip 1 from the slow memory to the fast memory. `MemoryTime0_in = 819.2`
+  * Run `Op0`.  `ComputeTime0 = Op0 = 1,500`
+  * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`
+  * `TotalLatency0_4 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 1,500`
+* Graph total:
+  * `TotalLatency = TotalLatency0_1 + TotalLatency0_2 + TotalLatency0_3 + TotalLatency0_4 = 7,096` (Memory bound, 2 reuses).
 
 #### Strategy B: Optimized Traversal (Data Reuse)
 
@@ -544,7 +544,7 @@ The `128x128` output is divided into 4 chunks.
   * Evict `¼` `Tensor2` from the fast memory to the slow memory. `MemoryTime0_out = ¼ Tensor2/B = 64x64/10 = 409.6`  
   * `TotalLatency0_4 = max(ComputeTime0, MemoryTime0_in+MemoryTime0_out) = 1,500`  
 * Graph total:  
-  * `TotalLatency = TotalLatency0_1 + TotalLatency0_2 + TotalLatency0_3 + TotalLatency0_4 = 6,548` (Largely compute bound, 20% faster than Strategy A).
+  * `TotalLatency = TotalLatency0_1 + TotalLatency0_2 + TotalLatency0_3 + TotalLatency0_4 = 6,548` (Largely compute bound, ~8% faster than Strategy A).
 
 ### Example 5: Chained Matrix Multiplication (Split-K)
 
