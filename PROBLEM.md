@@ -213,7 +213,7 @@ Output:
 * Graph total:  
   * `TotalLatency = 4 x TotalLatency0 = 4,400`  (Compute Bound, but 1.5X faster than Strategy A).
 
-### Example 2: Fast Memory Capacity
+### Example 2: Larger Tensors
 
 The tensors are now `256x256`.   
 Input:
@@ -226,7 +226,7 @@ Input:
   "outputs": [[1], [2]],
   "base_costs": [1000, 100],
   "op_types": ["Pointwise","Pointwise"],
-  "fast_memory_capacity": 25000,
+  "fast_memory_capacity": 35000,
   "slow_memory_bandwidth": 10,
   "native_granularity": [128, 128]
 }
