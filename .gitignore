@@ -1,0 +1,17 @@
+# Local AI/agent tooling state
+.claude/
+.gemini/
+.cursor/
+.aider*
+.continue/
+
+# Editor / IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc

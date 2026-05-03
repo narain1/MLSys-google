@@ -4,10 +4,19 @@
 | :---- | :---- |
 | 01/22/2026 | Public launch • Call for participation • Open registration • Release starter kit |
 | 02/09/2026 | Release 5 benchmark sets |
-| 04/24/2026 | Track A and Track B submission deadline (11:59 PM PT) |
-| 05/01/2026 | Writeup deadline (11:59 PM PT) |
+| 04/24/2026 | Track A and Track B submission deadline (11:59 PM PT) — **Closed** |
+| 05/01/2026 | Writeup deadline (11:59 PM PT) — **Closed** |
 | 05/11/2026 | Notify winners |
 | 05/17/2026 \- 05/22/2026 | MLSys 2026 \- award ceremony |
+
+# Results
+
+The contest is closed. Top-10 leaderboards (per-benchmark and total scores) plus a Special Innovation Award technique-frequency breakdown are published here:
+
+- [Track A leaderboard](./track_a_dashboard.md)
+- [Track B leaderboard](./track_b_dashboard.md)
+
+When a participant submitted multiple times, only the most recent submission counts.
 
 # Problem Description
 
@@ -19,9 +28,9 @@ We are hosting two distinct tracks to celebrate both systems engineering and AI 
 
 ## Submission Mechanism
 
-Submissions will be accepted via the [Official Submission Form](https://docs.google.com/forms/d/e/1FAIpQLSd9LLsW5dB9jQJLHg6QTebH6xx4rrpi0PNTQ_yPjYMAInA6fA/viewform?usp=publish-editor). You will be asked to provide your team details and upload your solution as a single `.zip` archive.
+Submissions were accepted via the Official Submission Form. The submission window has closed.
 
-* Deadline: April 24, 2026, 11:59 PM PT.  
+* Deadline: April 24, 2026, 11:59 PM PT (closed).  
 * File Naming: Please name your archive using the format: `TeamName_Track_SubmissionNumber.zip` (e.g., DeepRunners\_TrackA\_1.zip).  
 * Form Settings Note: when uploading, ensure your file is a standard `.zip` archive.
 
@@ -63,7 +72,7 @@ $ python3 agent.py <path_to_input.json> <path_to_output.json>
   3. `prompts/`: A folder containing your system prompts, few-shot examples, or agent definitions (required for reproducibility).  
   4. `writeup.pdf`: A short (1-2 page) summary of your prompting strategy and agent architecture.
 
-Both tracks share the same set of 25 benchmark problems.
+Both tracks share the same set of 24 benchmark problems.
 
 # Resources and Compute
 
@@ -89,42 +98,42 @@ Please don't hesitate reaching out to the Contest Organizers if you encounter an
 
 # Benchmarks
 
-The contest will involve twenty-five industrial benchmarks; [five have been released](https://github.com/google/iopddl/tree/main/benchmarks) in advance to contest participants (for testing purposes), and the remaining twenty will be withheld for evaluation:
+The contest involved twenty-four industrial benchmarks; five were released in advance for participants to test against, and the remaining nineteen were withheld for evaluation. All twenty-four are now public in [`benchmarks/`](./benchmarks/).
 
 **Note on Timeouts:** The timeouts listed below apply strictly to **Track A (Systems)**. For **Track B (Agents)**, a fixed timeout of **10 minutes** is applied to every benchmark to accommodate LLM inference latency.
 
-| Benchmark Name | \# Nodes | \# Edges | Timeout | Will be released to participants? |
+| Benchmark Name | \# Nodes | \# Edges | Timeout | Released during contest? |
 | :---- | :---- | :---- | :---- | :---- |
-| [mlsys-2026-1](https://github.com/yarongmu-google/MLSys/blob/main/benchmarks/mlsys-2026-1.json) | 5 | 9 | 2 second(s) | Yes |
-| mlsys-2026-2 | TBD | TBD | 2 second(s) |  |
-| mlsys-2026-3 | TBD | TBD | 2 second(s) |  |
-| mlsys-2026-4 | TBD | TBD | 2 second(s) |  |
-| [mlsys-2026-5](https://github.com/yarongmu-google/MLSys/blob/main/benchmarks/mlsys-2026-5.json) | 19 | 34 | 5 second(s) | Yes |
-| mlsys-2026-6 | TBD | TBD | 5 second(s) |  |
-| mlsys-2026-7 | TBD | TBD | 5 second(s) |  |
-| mlsys-2026-8 | TBD | TBD | 5 second(s) |  |
-| [mlsys-2026-9](https://github.com/yarongmu-google/MLSys/blob/main/benchmarks/mlsys-2026-9.json) | 32 | 56 | 15 second(s) | Yes |
-| mlsys-2026-10 | TBD | TBD | 15 seconds(s) |  |
-| mlsys-2026-11 | TBD | TBD | 15 seconds(s) |  |
-| mlsys-2026-12 | TBD | TBD | 15 seconds(s) |  |
-| [mlsys-2026-13](https://github.com/yarongmu-google/MLSys/blob/main/benchmarks/mlsys-2026-13.json) | 63 | 126 | 30 seconds(s) | Yes |
-| mlsys-2026-14 | TBD | TBD | 30 seconds(s) |  |
-| mlsys-2026-15 | TBD | TBD | 30 seconds(s) |  |
-| mlsys-2026-16 | TBD | TBD | 30 seconds(s) |  |
-| [mlsys-2026-17](https://github.com/yarongmu-google/MLSys/blob/main/benchmarks/mlsys-2026-17.json) | 103 | 198 | 60 seconds(s) | Yes |
-| mlsys-2026-18 | TBD | TBD | 60 seconds(s) |  |
-| mlsys-2026-19 | TBD | TBD | 60 seconds(s) |  |
-| mlsys-2026-20 | TBD | TBD | 60 seconds(s) |  |
-| mlsys-2026-21 | TBD | TBD | 120 seconds(s) |  |
-| mlsys-2026-22 | TBD | TBD | 120 seconds(s) |  |
-| mlsys-2026-23 | TBD | TBD | 120 seconds(s) |  |
-| mlsys-2026-24 | TBD | TBD | 120 seconds(s) |  |
+| [mlsys-2026-1](./benchmarks/mlsys-2026-1.json) | 5 | 9 | 2 second(s) | Yes |
+| [mlsys-2026-2](./benchmarks/mlsys-2026-2.json) | 5 | 7 | 2 second(s) |  |
+| [mlsys-2026-3](./benchmarks/mlsys-2026-3.json) | 4 | 6 | 2 second(s) |  |
+| [mlsys-2026-4](./benchmarks/mlsys-2026-4.json) | 5 | 10 | 2 second(s) |  |
+| [mlsys-2026-5](./benchmarks/mlsys-2026-5.json) | 19 | 34 | 5 second(s) | Yes |
+| [mlsys-2026-6](./benchmarks/mlsys-2026-6.json) | 17 | 29 | 5 second(s) |  |
+| [mlsys-2026-7](./benchmarks/mlsys-2026-7.json) | 15 | 21 | 5 second(s) |  |
+| [mlsys-2026-8](./benchmarks/mlsys-2026-8.json) | 20 | 37 | 5 second(s) |  |
+| [mlsys-2026-9](./benchmarks/mlsys-2026-9.json) | 32 | 56 | 15 second(s) | Yes |
+| [mlsys-2026-10](./benchmarks/mlsys-2026-10.json) | 28 | 47 | 15 seconds(s) |  |
+| [mlsys-2026-11](./benchmarks/mlsys-2026-11.json) | 26 | 38 | 15 seconds(s) |  |
+| [mlsys-2026-12](./benchmarks/mlsys-2026-12.json) | 31 | 46 | 15 seconds(s) |  |
+| [mlsys-2026-13](./benchmarks/mlsys-2026-13.json) | 63 | 126 | 30 seconds(s) | Yes |
+| [mlsys-2026-14](./benchmarks/mlsys-2026-14.json) | 63 | 96 | 30 seconds(s) |  |
+| [mlsys-2026-15](./benchmarks/mlsys-2026-15.json) | 61 | 97 | 30 seconds(s) |  |
+| [mlsys-2026-16](./benchmarks/mlsys-2026-16.json) | 63 | 85 | 30 seconds(s) |  |
+| [mlsys-2026-17](./benchmarks/mlsys-2026-17.json) | 103 | 198 | 60 seconds(s) | Yes |
+| [mlsys-2026-18](./benchmarks/mlsys-2026-18.json) | 96 | 176 | 60 seconds(s) |  |
+| [mlsys-2026-19](./benchmarks/mlsys-2026-19.json) | 103 | 154 | 60 seconds(s) |  |
+| [mlsys-2026-20](./benchmarks/mlsys-2026-20.json) | 103 | 178 | 60 seconds(s) |  |
+| [mlsys-2026-21](./benchmarks/mlsys-2026-21.json) | 152 | 280 | 120 seconds(s) |  |
+| [mlsys-2026-22](./benchmarks/mlsys-2026-22.json) | 150 | 240 | 120 seconds(s) |  |
+| [mlsys-2026-23](./benchmarks/mlsys-2026-23.json) | 121 | 186 | 120 seconds(s) |  |
+| [mlsys-2026-24](./benchmarks/mlsys-2026-24.json) | 112 | 192 | 120 seconds(s) |  |
 
-All benchmarks will become publicly available after the contest is complete.
+All twenty-four benchmarks (released-at-launch + previously-withheld) are now public in [`benchmarks/`](./benchmarks/). Each benchmark also has a `mermaid/` companion diagram for quick visualization.
 
 # Evaluation and Scoring
 
-The contest organizers will execute each team's binary across the twenty withheld benchmarks on a dedicated 8-core Linux workstation with 32GB of RAM. Rankings will be established by calculating the total number of points per team, where points are derived by normalizing cost values against the best submitted solution.
+The contest organizers will execute each team's binary across the nineteen withheld benchmarks on a dedicated 8-core Linux workstation with 32GB of RAM. Rankings will be established by calculating the total number of points per team, where points are derived by normalizing cost values against the best submitted solution.
 
 For example, assume the following raw costs:
 
