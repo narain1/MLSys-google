@@ -11,12 +11,32 @@
 
 # Results
 
-The contest is closed. Top-10 leaderboards (per-benchmark and total scores) plus a Special Innovation Award technique-frequency breakdown are published here:
+The contest is closed and winners have been determined. Full top-10 leaderboards (per-benchmark and total scores) plus a Special Innovation Award technique-frequency breakdown are published here:
 
 - [Track A leaderboard](./track_a_dashboard.md)
 - [Track B leaderboard](./track_b_dashboard.md)
 
-When a participant submitted multiple times, only the most recent submission counts.
+When a participant submitted multiple times, only the most recent submission counts. Winning teams have until 2026-07-11 to open-source their solution under MIT/Apache 2.0; code links will be added below as they become available.
+
+## Track A: Systems Engineering — Winners
+
+| Rank | Prize | Team | Score | Code |
+|:---|:---|:---|---:|:---|
+| First Place 🥇 | $10,000 | Vinci | 19.22 | TBD |
+| Second Place 🥈 | $7,500 | ZRC | 18.52 | TBD |
+| Third Place 🥉 | $5,000 | curling-grad | 18.32 | TBD |
+| Special Innovation Award ⭐ | $2,500 | Jag | — | TBD |
+
+## Track B: Agent Reasoning — Winners
+
+| Rank | Prize | Team | Score | Code |
+|:---|:---|:---|---:|:---|
+| First Place 🥇 | $10,000 | TeamKorea | 20.97 | TBD |
+| Second Place 🥈 | $7,500 | MLSys2026_TrackB_Bharath | 20.83 | TBD |
+| Third Place 🥉 | $5,000 | Lazy Schedulers | 18.86 | TBD |
+| Special Innovation Award ⭐ | $2,500 | iceburge | — | TBD |
+
+Congratulations to all winning teams, and thanks to every participant for an exceptionally strong field of submissions.
 
 # Problem Description
 
@@ -156,10 +176,10 @@ The points that a team earns for a particular benchmark is then equal to min\_te
 
 Thanks to our sponsor Google, we are offering a $50,000 Total Prize Pool, split evenly between the two tracks to encourage diversity in approaches.
 
-| Track | Gold (1st) | Silver (2nd) | Bronze (3rd) | Honorable Mentions |
+| Track | Gold (1st) | Silver (2nd) | Bronze (3rd) | Special Innovation Award |
 | :---- | :---- | :---- | :---- | :---- |
-| Track A: Systems | $10,000 | $7,500 | $5,000 | $2,500 (shared) |
-| Track B: Agents | $10,000 | $7,500 | $5,000 | $2,500 (shared) |
+| Track A: Systems | $10,000 | $7,500 | $5,000 | $2,500 |
+| Track B: Agents | $10,000 | $7,500 | $5,000 | $2,500 |
 
 Award Rules:
 
