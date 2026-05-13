@@ -23,7 +23,7 @@ When a participant submitted multiple times, only the most recent submission cou
 | Rank | Prize | Team | Score | Code |
 |:---|:---|:---|---:|:---|
 | First Place 🥇 | $10,000 | Vinci | 19.22 | TBD |
-| Second Place 🥈 | $7,500 | ZRC | 18.52 | TBD |
+| Second Place 🥈 | $7,500 | VNRC | 18.52 | TBD |
 | Third Place 🥉 | $5,000 | curling-grad | 18.32 | TBD |
 | Special Innovation Award ⭐ | $2,500 | Jag | — | TBD |
 
